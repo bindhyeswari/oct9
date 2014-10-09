@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link rel="stylesheet" href="base.css"/>
+
+    <script>
+
+        // todo: Apply CSS to make the AJAX weather call look like https://www.google.com/search?q=google+weather+san+jose&ie=utf-8&oe=utf-8&aq=t&rls=org.mozilla:en-US:official&client=firefox-a&channel=fflb
+
+        // todo: GEO API --> search for places
+        // todo: Flickr API --> searcg for photos and display searched photos (20 photos)
+        //
+
+
+        function getWeatherUrl(city) {
+            var path = 'https://query.yahooapis.com/v1/public/yql';
+            // ajax url - path
+            // https://query.yahooapis.com/v1/public/yql
+
+
+            // query
+            // key: q
+            // value: select wind from weather.forecast where woeid in (select woeid from geo.places(1) where text="chicago, il")
+
+            // key: format
+            // value: json
+
+            // key: env
+            // value: store://datatables.org/alltableswithkeys
+            var params = {
+                'q': 'select * from weather.forecast where woeid in (select woeid from geo.places(1) where text="' + city + '")',
+                'format': 'json',
+                'env': 'store://datatables.org/alltableswithkeys'
+            };
+
+            function urlConstructor(path, params) {
+                var keys = Object.getOwnPropertyNames(params);
+                return path + '?' + ( keys.length ? keys.map(function (key) {
+                    return key + '=' + encodeURIComponent(params[key]);
+                }).join('&') : '' );
+            }
+
+            function urlConstructor2(path, params) {
+                var url = '';
+                for ( var prop in params ) {
+                    if ( params.hasOwnProperty(prop) )
+                        url += '&' + prop +'=' + params[prop];
+                }
+                return ( url.length ? path + '?' + url : path )
+            }
+
+            return urlConstructor(path, params);
+
+        }
+
+    </script>
+    <style>
+        div#results {
+            padding: 1em;
+            margin: 1em;
+        }
+
+        div.object {
+            padding: 0.5em;
+            margin: 0.5em;
+            border: 1px solid gray;
+        }
+
+        div.property {
+            padding: 0.25em;
+        }
+
+        span.property {
+            font-size: 0.85em;
+            color: #777;
+            padding: 0.25em 0.5em;
+            border-radius: 0.25em;
+
+        }
+    </style>
+</head>
+<body>
+
+    <input type="text" placeholder="city" name="city"/>
+    <div id="results">
+
+
+
+    </div>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script>
+
+        console.log(decodeURIComponent('select%20*%20from%20yahoo.finance.historicaldata%20where%20symbol%20%3D%20%22AAPL%22%20and%20startDate%20%3D%20%222012-09-11%22%20and%20endDate%20%3D%20%222014-02-11%22&format=json&diagnostics=true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback='));
+
+
+        var div_results = document.getElementById('results');
+        document.getElementsByTagName('input')[0].addEventListener('keydown', function (event) {
+
+            if ( event.keyCode === 13 ) {
+                console.log(this.value);
+                var url = getWeatherUrl(this.value);
+                console.log(url);
+
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url);
+                xhr.onreadystatechange = function () {
+                    if ( xhr.readyState === 4 && xhr.status === 200 ) {
+                        // div_results.innerHTML = xhr.responseText;
+                        objectDump(JSON.parse(xhr.responseText)).appendTo(document.body);
+                    }
+                };
+                xhr.send();
+            }
+        });
+
+        // todo: Object Dump - Array notation - http://stackoverflow.com/questions/728360/most-elegant-way-to-clone-a-javascript-object
+
+        /**
+         *
+         * 1. Create a div element for every object
+         *
+         *  <div class='object'>
+         *
+         *
+         *  </div>
+         *
+         * 2. Loop over all the properties of the object
+         * 3. If the value of the property is a primitive, then display it in
+         *
+         * <div class='property'>
+         *      <span class=key>property name<span>
+         *      <span class='value'>property value</span>
+         * </div>
+         *
+         *
+         * Append this data to the div
+         *
+         * 4. If it is an object repeat step 1
+         *
+         * */
+
+
+        var x = {
+            name: 'Talin',
+            id: 64,
+            address: {
+                city: 'San Jose',
+                zip: '95128'
+            }
+        };
+
+        // objectDump(x).appendTo(document.body);
+
+        function objectDump (obj) {
+
+            var $div = $('<div>').addClass('object');
+
+            for ( var prop in obj ) {
+                if ( typeof obj[prop] !== 'object' ) {
+                    var $property_div = $('<div>').addClass('property').appendTo($div);
+
+                    $('<span>').addClass('property').html(prop).appendTo($property_div);
+                    $('<span>').addClass('value').html(obj[prop]).appendTo($property_div);
+
+                    console.log( prop + ': ' + obj[prop] );
+
+                } else {
+
+                    var $property_div = $('<div>').addClass('property').appendTo($div);
+                    $('<span>').addClass('property').html(prop).appendTo($property_div);
+                    objectDump(obj[prop]).appendTo($property_div);
+                }
+            }
+
+            return $div;
+        }
+
+    </script>
+
+</body>
+</html>

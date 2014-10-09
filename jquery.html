@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script>
+
+        // todo: read through the jQuery selectors - http://api.jquery.com/category/selectors/
+
+        $(function () { // function as an input
+
+            var obj = $('span', document.body.children[1]).css('background-color', '#aaa'); // string as an input
+
+            $('<span>').appendTo('span').html('I am a new span').addClass('classname'); // Creates a DOM element based on the input tag < >
+
+            // applying a background color red onto the div element
+            $(document.body.children[1]).css('background-color', 'red'); // DOM Element as an input
+
+        });
+
+
+    </script>
+</head>
+<body>
+    <span>data</span>
+    <div class="mydiv">
+        <span>asdf</span>
+        <span>asdf</span>
+        <span>asdf</span>
+        <span>asdf</span>
+    </div>
+</body>
+</html>
